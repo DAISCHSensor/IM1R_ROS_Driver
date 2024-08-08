@@ -2,6 +2,7 @@
 
 [![DAISCH Banner](documentation/README.assets/DAISCH_IM1R_Banner.png)](http://www.daisch.com)
 
+
 # IM1R_ROS_Driver
 
 [![GitHub issues](https://img.shields.io/github/issues/DAISCHSensor/IM1R_ROS_Driver?style=flat-square)](https://github.com/DAISCHSensor/IM1R_ROS_Driver/issues)
@@ -10,98 +11,98 @@
 [![GitHub release (with filter)](https://img.shields.io/github/v/release/DAISCHSensor/IM1R_ROS_Driver?style=flat-square)]()
 [![GitHub Repo stars](https://img.shields.io/github/stars/DAISCHSensor/IM1R_ROS_Driver?style=flat-square)]()
 
-**English** · [简体中文](./README.zh-CN.md)
+[English](./README.md) · **简体中文**
 
 </div>
 
 ---
 
-## Table of Contents
+## 目录
 
 - [IM1R\_ROS\_Driver](#im1r_ros_driver)
-  - [Table of Contents](#table-of-contents)
-  - [Project Description](#project-description)
-  - [Getting Started](#getting-started)
-    - [System Requirements](#system-requirements)
-    - [Installation Setups](#installation-setups)
-  - [Usage Instructions](#usage-instructions)
-  - [Published Topics](#published-topics)
-  - [Parameters Introductions](#parameters-introductions)
-    - [Standard Topic](#standard-topic)
+  - [目录](#目录)
+  - [项目描述](#项目描述)
+  - [入门指南](#入门指南)
+    - [系统要求](#系统要求)
+    - [安装步骤](#安装步骤)
+  - [使用说明](#使用说明)
+  - [发布的话题](#发布的话题)
+  - [参数介绍](#参数介绍)
+    - [标准话题](#标准话题)
       - [imu/data](#imudata)
       - [temperature](#temperature)
-    - [Custom Topic](#custom-topic)
+    - [自定义话题](#自定义话题)
       - [im1r/extra](#im1rextra)
-  - [FAQ](#faq)
-    - [Issue 1: Script Not Found](#issue-1-script-not-found)
-  - [Contributing](#contributing)
-  - [License](#license)
+  - [常见问题解答](#常见问题解答)
+    - [问题1：找不到脚本](#问题1找不到脚本)
+  - [贡献](#贡献)
+  - [许可证](#许可证)
 
-## Project Description
+## 项目描述
 
-The project aims to develop and maintain ROS drivers suitable for IM1R products.
+本项目旨在开发和维护适用于 IM1R 产品的 ROS 驱动程序。
 
-## Getting Started
+## 入门指南
 
-### System Requirements
+### 系统要求
 
 - Ubuntu 18.04
 - ROS Melodic
 
-### Installation Setups
+### 安装步骤
 
-1. Install ROS:
-   Please refer to the [ROS installation guide](http://wiki.ros.org/ROS/Installation) for detailed instructions.
+1. 安装 ROS：
+   请参考 [ROS 安装指南](http://wiki.ros.org/ROS/Installation) 获取详细说明。
 
-2. Create catkin workspace:
+2. 创建 catkin 工作空间：
 
    ``` shell
    mkdir -p ~/catkin_ws/src
    ```
 
-3. Clone the project repository to the src directory of your catkin workspace:
+3. 克隆项目仓库到 src 目录：
 
    ``` shell
    cd ~/catkin_ws/src
    git clone https://github.com/DAISCHSensor/IM1R_ROS_Driver.git
    ```
 
-4. Build the driver:
+4. 构建工作空间：
 
    ``` shell
    cd ~/catkin_ws/
    catkin_make
    ```
 
-5. Update the `.bashrc` file:
+5. 更新 `.bashrc` :
 
    ``` shell
    echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
    source ~/.bashrc
    ```
 
-## Usage Instructions
+## 使用说明
 
-1. Start the ROS master:
+1. 启动 ROS 核心服务：
 
    ``` shell
    roscore
    ```
 
-2. Identify the serial port for the IM1R device:
+2. 识别 IM1R 设备的串口：
 
    ``` shell
    dmesg | grep tty
    ```
 
-3. Set the serial port permissions:
-   Assuming the IM1R device is connected to /dev/ttyUSB0:
+3. 设置串口权限：
+   假设 IM1R 设备连接到 /dev/ttyUSB0：
 
    ``` shell
    sudo chmod 666 /dev/ttyUSB0
    ```
 
-4. Launch the driver node:
+4. 启动驱动节点：
 
    ``` shell
    rosrun im1r_ros_driver daisch_im1r_node.py /dev/ttyUSB0 115200
@@ -110,33 +111,33 @@ The project aims to develop and maintain ROS drivers suitable for IM1R products.
    - `/dev/ttyUSB0` is the serial port.
    - `115200` is the baudrate.
 
-5. List all the topic:
+5. 列出所有话题：
 
    ``` shell
    rostopic list
    ```
 
-6. echo the specific topic:
+6. 输出指定话题的内容：
 
    ``` shell
    rostopic echo imu/data
    ```
 
-7. Example of subscribing to  topics (Python):
+7. 订阅话题的示例 (Python)：
 
    ``` shell
    rosrun im1r_ros_driver subscriber_example.py
    ```
 
-## Published Topics
+## 发布的话题
 
-- `imu/data` ([sensor_msgs/Imu](http://docs.ros.org/api/sensor_msgs/html/msg/Imu.html)) quaternion, angular velocity and linear acceleration
-- `temperature` ([sensor_msgs/Temperature](http://docs.ros.org/api/sensor_msgs/html/msg/Imu.html)) temperature from device
-- `im1r/extra` ([DAISCH Custom Topic](#custom-topic)) extra params from **IM1R**
+- `imu/data` ([sensor_msgs/Imu](http://docs.ros.org/api/sensor_msgs/html/msg/Imu.html)) 四元数、角速度和线性加速度
+- `temperature` ([sensor_msgs/Temperature](http://docs.ros.org/api/sensor_msgs/html/msg/Temperature.html)) 来自设备的温度
+- `im1r/extra` ([DAISCH 自定义话题](#custom-topic)) 来自 **IM1R** 的额外参数
 
-## Parameters Introductions
+## 参数介绍
 
-### Standard Topic
+### 标准话题
 
 #### imu/data
 
@@ -167,7 +168,7 @@ The project aims to develop and maintain ROS drivers suitable for IM1R products.
 | float64 `temperature`                        | ✔️        |
 | float64 `variance`                           | ✘        |
 
-### Custom Topic
+### 自定义话题
 
 #### im1r/extra
 
@@ -185,11 +186,11 @@ The project aims to develop and maintain ROS drivers suitable for IM1R products.
 | `gyro_static_bias_y`       | float64    | Static gyroscope bias along the Y axis    | radians/second (rad/s) |                                                 |
 | `gyro_static_bias_z`       | float64    | Static gyroscope bias along the Z axis    | radians/second (rad/s) |                                                 |
 
-## FAQ
+## 常见问题解答
 
-### Issue 1: Script Not Found
+### 问题1：找不到脚本
 
-**Symptom**: Running `rosrun im1r_ros_driver subscriber_example.py` results in the following error:
+**症状**：运行 `rosrun im1r_ros_driver subscriber_example.py` 时出现以下错误：
 
 ``` shell
 [rosrun] Couldn't find executable named subscriber_example.py below /home/daisch/catkin_ws/src/im1r_ros_driver
@@ -198,20 +199,20 @@ The project aims to develop and maintain ROS drivers suitable for IM1R products.
 [rosrun]   /home/daisch/catkin_ws/src/im1r_ros_driver/scripts/subscriber_example.py
 ```
 
-**Solution**: Grant executable permissions to the script:
+**解决方案**：授予脚本可执行权限：
 
    ``` shell
    chmod +x /home/daisch/catkin_ws/src/im1r_ros_driver/scripts/subscriber_example.py
    ```
 
-If you have any other questions or need further assistance, feel free to ask.
+如果您有任何其他问题或需要进一步的帮助，请随时提出。
 
-## Contributing
+## 贡献
 
 <a href="https://github.com/DAISCHSensor/IM1R_ROS_Driver/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=DAISCHSensor/IM1R_ROS_Driver"/>
 </a>
 
-## License
+## 许可证
 
 [BSD-3-Clause](./LICENSE)
