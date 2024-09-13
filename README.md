@@ -32,6 +32,10 @@
       - [temperature](#temperature)
     - [Custom Topic](#custom-topic)
       - [im1r/extra](#im1rextra)
+  - [IM1R Configuration Tool](#im1r-configuration-tool)
+    - [Starting the Tool](#starting-the-tool)
+    - [Changing Configuration Items](#changing-configuration-items)
+    - [Notes](#notes)  
   - [FAQ](#faq)
     - [Issue 1: Script Not Found](#issue-1-script-not-found)
   - [Contributing](#contributing)
@@ -184,6 +188,68 @@ The project aims to develop and maintain ROS drivers suitable for IM1R products.
 | `gyro_static_bias_x`       | float64    | Static gyroscope bias along the X axis    | radians/second (rad/s) |                                                 |
 | `gyro_static_bias_y`       | float64    | Static gyroscope bias along the Y axis    | radians/second (rad/s) |                                                 |
 | `gyro_static_bias_z`       | float64    | Static gyroscope bias along the Z axis    | radians/second (rad/s) |                                                 |
+
+## IM1R Configuration Tool
+
+### Starting the Tool
+
+1. Start the ROS core service:
+
+   ``` shell
+   roscore
+   ```
+
+2. Identify the serial port of the IM1R device:
+
+   ``` shell
+   dmesg | grep tty
+   ```
+
+3. Set serial port permissions:
+   Assuming the IM1R device is connected to /dev/ttyUSB0:
+
+   ``` shell
+   sudo chmod 666 /dev/ttyUSB0
+   ```
+
+4. Start the configuration tool:
+
+   ``` shell
+   rosrun im1r_ros_driver daisch_im1r_config.py /dev/ttyUSB0
+   ```
+
+   - Ensure the serial port connected to IM1R is set to port 2, with a fixed baud rate of 115200.
+
+5. After a successful start, the main interface will display the following content:
+
+   ![DAISCH_IM1R_Config_MainWindow](documentation/README.assets/DAISCH_IM1R_Config_MainWindow.png)
+
+6. If the serial port connection fails, you will see the information in the image below. Please check if the device is correctly connected and reconfigure the serial port permissions.
+
+   ![DAISCH_IM1R_Config_ConnectFail](documentation/README.assets/DAISCH_IM1R_Config_ConnectFail.png)
+
+### Changing Configuration Items
+
+Here are the steps to change the output frequency as an example:
+
+1. Enter  `2` in the main interface and press Enter to enter the submenu:
+
+   ![DAISCH_IM1R_Config_Frequency](documentation/README.assets/DAISCH_IM1R_Config_Frequency.png)
+
+2. Select the desired output frequency from the submenu. After the configuration is successful, the tool will automatically return to the main menu. For example, after setting the output frequency to 50Hz, you can see the setting has been successfully changed in the main menu:
+
+   ![DAISCH_IM1R_Config_Result](documentation/README.assets/DAISCH_IM1R_Config_Result.png)
+
+### Notes
+
+- The output frequency should match the baud rate. Mismatched baud rates and output frequencies can result in erroneous messages being received.
+
+  | Baud Rate | Maximum Output Frequency |
+  | :----: | :----------: |
+  | 115200 |    100Hz     |
+  | 230400 |    250Hz     |
+  | 460800 |    500Hz     |
+  | 921600 |    1000Hz    |
 
 ## FAQ
 
