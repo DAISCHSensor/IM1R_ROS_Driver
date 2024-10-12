@@ -11,7 +11,7 @@
 [![GitHub release (with filter)](https://img.shields.io/github/v/release/DAISCHSensor/IM1R_ROS_Driver?style=flat-square)]()
 [![GitHub Repo stars](https://img.shields.io/github/stars/DAISCHSensor/IM1R_ROS_Driver?style=flat-square)]()
 
-[English](./README.md) · **简体中文**
+[English](./README.md) · **简体中文** · [Global Official Site](https://www.daischsensor.com) · [中文官网](https://www.daisch.com)
 
 </div>
 
