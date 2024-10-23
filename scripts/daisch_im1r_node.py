@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 import sys
@@ -12,11 +12,11 @@ import math
 TEMP_DBL = -1.0
 USED_FRAME_LEN = 62
 DEFAULT_PORT = '/dev/ttyUSB0'
-DEFAULT_BAUDRATE = 460800
+DEFAULT_BAUDRATE = 115200
 FRAME_ID = "IM1R"
 
 class RealTimeCOM:
-    def __init__(self, port, rate=460800, timeout=2):
+    def __init__(self, port, rate=115200, timeout=2):
         self.port = port
         self.rate = rate
         self.timeout = timeout
@@ -37,7 +37,7 @@ def initialize_serial_port():
         port = sys.argv[1]
     except IndexError:
         port = DEFAULT_PORT
-        rospy.loginfo('Default port used: {DEFAULT_PORT}')
+        rospy.loginfo(f'Default port used: {DEFAULT_PORT}')
     return port
 
 def initialize_serial_baudrate():
@@ -45,7 +45,7 @@ def initialize_serial_baudrate():
         baudrate = sys.argv[2]
     except IndexError:
         baudrate = DEFAULT_BAUDRATE
-        rospy.loginfo('Default baudrate used: {DEFAULT_BAUDRATE}')
+        rospy.loginfo(f'Default baudrate used: {DEFAULT_BAUDRATE}')
     return baudrate
 
 def initialize_publishers():
@@ -116,14 +116,14 @@ def main():
             try:
                 parsed_data = parse_frame(data)
                 if parsed_data is None:
-                    rospy.logwarn("Parse frame error! Data was: {data}")
+                    rospy.logwarn(f"Parse frame error! Data was: {data}")
                 else:
                     publish_imu_data(pub_imu_data, stamp, parsed_data)
                     publish_temperature(pub_temperature, stamp, parsed_data)
                     publish_extra_data(pub_im1r_extra, parsed_data)
 
             except ValueError as e:
-                rospy.logwarn("Value error, likely due to missing fields in the messages. Error was: {e}")
+                rospy.logwarn(f"Value error, likely due to missing fields in the messages. Error was: {e}")
 
     except rospy.ROSInterruptException:
         serial_com.close()  # Close serial port

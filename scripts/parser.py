@@ -1,6 +1,4 @@
 import struct
-import csv
-import os
 
 
 # Define constants
@@ -18,21 +16,22 @@ MIN_FRAME_LEN = 8
 
 def checksum_crc(data, crc_ref):
     """
-    :param data:
-    :param crc_ref:
-    :return: True/False
+    :param data: The data to be checked (should be bytes).
+    :param crc_ref: The reference CRC value (should be bytes).
+    :return: True if the computed CRC matches the reference CRC, False otherwise.
     """
     if len(crc_ref) == CRC_LEN: 
         crc = 0x00  # Initial value
         for byte in data:
-            crc ^= struct.unpack('B', byte)[0]
+            crc ^= byte
             for _ in range(8):
                 if (crc & 0x80) != 0:
                     crc = (crc << 1) ^ 0x07
                 else:
                     crc <<= 1
                 crc &= 0xFF
-        return crc == struct.unpack('B', crc_ref[0])[0]
+        # Compare the calculated CRC with the reference CRC
+        return crc == crc_ref[0]
     else:
         return False
 
