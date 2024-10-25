@@ -1,4 +1,5 @@
 import struct
+import math
 
 
 # Define constants
@@ -10,7 +11,7 @@ CMD_LEN = 1
 LEN_LEN = 1
 CRC_LEN = 1
 TAIL_LEN = 2
-USED_FRAME_LEN = 62
+USED_FRAME_LEN = 64
 MIN_FRAME_LEN = 8
 
 
@@ -78,3 +79,13 @@ def parse_frame(frame):
             return None
     else:
         return None
+
+
+def euler_to_quaternion(roll, pitch):
+    roll = math.radians(roll)
+    pitch = math.radians(pitch)
+    qw = math.cos(roll / 2) * math.cos(pitch / 2)
+    qx = math.sin(roll / 2) * math.cos(pitch / 2)
+    qy = math.cos(roll / 2) * math.sin(pitch / 2)
+    qz = -math.sin(roll / 2) * math.sin(pitch / 2)
+    return (qw, qx, qy, qz)

@@ -3,17 +3,17 @@
 import rospy
 import sys
 import serial
-from parser import parse_frame
+from parser import parse_frame, euler_to_quaternion
 from im1r_ros_driver.msg import IM1R_EXTRA
 from sensor_msgs.msg import Imu, Temperature
 import math
 
 # Constants
 TEMP_DBL = -1.0
-USED_FRAME_LEN = 62
+USED_FRAME_LEN = 64
+FRAME_ID = "IM1R"
 DEFAULT_PORT = '/dev/ttyUSB0'
 DEFAULT_BAUDRATE = 115200
-FRAME_ID = "IM1R"
 
 class RealTimeCOM:
     def __init__(self, port, rate=115200, timeout=2):
@@ -30,7 +30,10 @@ class RealTimeCOM:
             self.com.close()
 
     def get_data(self):
-        return self.com.readline().strip() if self.com else ""
+        return self.com.readline() if self.com else b''
+
+    def clear_buff(self):
+        self.com.reset_input_buffer()
 
 def initialize_serial_port():
     try:
@@ -64,7 +67,11 @@ def publish_imu_data(pub, stamp, data):
     msg.angular_velocity.x = data['GyroX'] * (math.pi / 180)
     msg.angular_velocity.y = data['GyroY'] * (math.pi / 180)
     msg.angular_velocity.z = data['GyroZ'] * (math.pi / 180)
-    msg.orientation.w = msg.orientation.x = msg.orientation.y = msg.orientation.z = TEMP_DBL
+    quaternion = euler_to_quaternion(data['Roll'], data['Pitch'])
+    msg.orientation.w = quaternion[0]
+    msg.orientation.x = quaternion[1]
+    msg.orientation.y = quaternion[2]
+    msg.orientation.z = quaternion[3]
     msg.orientation_covariance[0] = msg.orientation_covariance[4] = msg.orientation_covariance[8] = TEMP_DBL
     pub.publish(msg)
     # rospy.loginfo(msg._type)
@@ -104,26 +111,22 @@ def main():
     try:
         serial_com = RealTimeCOM(serial_port, serial_baudrate, timeout=1)
         serial_com.open()
+        serial_com.clear_buff()
         rospy.loginfo("SerialPort Open")
-
         while not rospy.is_shutdown():
             data = serial_com.get_data()
-            stamp = rospy.Time.now()
-            
-            if len(data) != USED_FRAME_LEN:
-                continue
-
+            while len(data) < USED_FRAME_LEN:
+                data += serial_com.get_data()
             try:
                 parsed_data = parse_frame(data)
-                if parsed_data is None:
-                    rospy.logwarn(f"Parse frame error! Data was: {data}")
-                else:
+                if parsed_data:
+                    stamp = rospy.Time.now()
                     publish_imu_data(pub_imu_data, stamp, parsed_data)
                     publish_temperature(pub_temperature, stamp, parsed_data)
                     publish_extra_data(pub_im1r_extra, parsed_data)
 
             except ValueError as e:
-                rospy.logwarn(f"Value error, likely due to missing fields in the messages. Error was: {e}")
+                rospy.logwarn(f"Value error, likely due to missing fields in the messages. Error was: {e}")     
 
     except rospy.ROSInterruptException:
         serial_com.close()  # Close serial port
