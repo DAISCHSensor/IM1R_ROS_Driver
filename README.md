@@ -49,35 +49,60 @@ The project aims to develop and maintain ROS drivers suitable for IM1R products.
 
 ### System Requirements
 
-- Ubuntu 18.04
-- ROS Melodic
+- Ubuntu 18.04 / ROS Melodic
+- Ubuntu 20.04 / ROS Noetic
 
 ### Installation Setups
 
 1. Install ROS:
    Please refer to the [ROS installation guide](http://wiki.ros.org/ROS/Installation) for detailed instructions.
 
-2. Create catkin workspace:
+2. Install Dependencies:
+
+      Run the following commands to install dependencies based on your system's Python version:
+
+      - For Ubuntu 18.04 / Python 2:
+      
+        ```shell
+        sudo apt update
+        sudo apt install python-pip
+        pip install pyserial
+        ```
+
+      - For Ubuntu 20.04 / Python 3:
+      
+        ```shell
+        sudo apt update
+        sudo apt install python3-pip
+        pip3 install pyserial
+        ```
+
+3. Create catkin workspace:
 
    ``` shell
    mkdir -p ~/catkin_ws/src
    ```
 
-3. Clone the project repository to the src directory of your catkin workspace:
+4. Clone the project repository to the src directory of your catkin workspace:
 
    ``` shell
    cd ~/catkin_ws/src
    git clone https://github.com/DAISCHSensor/IM1R_ROS_Driver.git
    ```
-
-4. Build the driver:
+   - For Ubuntu 20.04 / Python 3, switch to the appropriate branch:
+     ```shell
+     cd IM1R_ROS_Driver
+     git checkout ubuntu20.04-support
+     ```
+   
+5. Build the driver:
 
    ``` shell
    cd ~/catkin_ws/
    catkin_make
    ```
 
-5. Update the `.bashrc` file:
+6. Update the `.bashrc` file:
 
    ``` shell
    echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
@@ -86,47 +111,49 @@ The project aims to develop and maintain ROS drivers suitable for IM1R products.
 
 ## Usage Instructions
 
-1. Start the ROS master:
+1. Connect IM1R via UART1 data cable.
+
+2. Start the ROS master:
 
    ``` shell
    roscore
    ```
 
-2. Identify the serial port for the IM1R device:
+3. Identify the serial port for the IM1R device:
 
    ``` shell
    dmesg | grep tty
    ```
 
-3. Set the serial port permissions:
+4. Set the serial port permissions:
    Assuming the IM1R device is connected to /dev/ttyUSB0:
 
    ``` shell
    sudo chmod 666 /dev/ttyUSB0
    ```
 
-4. Launch the driver node:
+5. Launch the driver node:
 
    ``` shell
    rosrun im1r_ros_driver daisch_im1r_node.py /dev/ttyUSB0 115200
    ```
 
    - `/dev/ttyUSB0` is the serial port.
-   - `115200` is the baudrate.
+   - `115200` is the baud rate used by IM1R, adjust it as needed.
 
-5. List all the topic:
+6. List all the topic:
 
    ``` shell
    rostopic list
    ```
 
-6. echo the specific topic:
+7. echo the specific topic:
 
    ``` shell
    rostopic echo imu/data
    ```
 
-7. Example of subscribing to  topics (Python):
+8. (Example Program) Subscribe to a topic:
 
    ``` shell
    rosrun im1r_ros_driver subscriber_example.py
@@ -148,10 +175,10 @@ The project aims to develop and maintain ROS drivers suitable for IM1R products.
 | -------------------------------------------- | --------- |
 | time `header.stamp`                          | ✔️        |
 | string `header.frame_id`                     | ✔️        |
-| float64 `orientation.x`                      | ✘        |
-| float64 `orientation.y`                      | ✘        |
-| float64 `orientation.z`                      | ✘        |
-| float64 `orientation.w`                      | ✘        |
+| float64 `orientation.x`                      | ✔️        |
+| float64 `orientation.y`                      | ✔️        |
+| float64 `orientation.z`                      | ✔️        |
+| float64 `orientation.w`                      | ✔️        |
 | float64[9] `orientation_covariance`          | ✘        |
 | float64 `angular_velocity.x`                 | ✔️        |
 | float64 `angular_velocity.y`                 | ✔️        |
@@ -193,26 +220,28 @@ The project aims to develop and maintain ROS drivers suitable for IM1R products.
 
 ### Starting the Tool
 
-1. Start the ROS core service:
+1. Connect IM1R via UART2 debug cable.
+
+2. Start the ROS core service:
 
    ``` shell
    roscore
    ```
 
-2. Identify the serial port of the IM1R device:
+3. Identify the serial port of the IM1R device:
 
    ``` shell
    dmesg | grep tty
    ```
 
-3. Set serial port permissions:
+4. Set serial port permissions:
    Assuming the IM1R device is connected to /dev/ttyUSB0:
 
    ``` shell
    sudo chmod 666 /dev/ttyUSB0
    ```
 
-4. Start the configuration tool:
+5. Start the configuration tool:
 
    ``` shell
    rosrun im1r_ros_driver daisch_im1r_config.py /dev/ttyUSB0
@@ -220,11 +249,11 @@ The project aims to develop and maintain ROS drivers suitable for IM1R products.
 
    - Ensure the serial port connected to IM1R is set to port 2, with a fixed baud rate of 115200.
 
-5. After a successful start, the main interface will display the following content:
+6. After a successful start, the main interface will display the following content:
 
    ![DAISCH_IM1R_Config_MainWindow](documentation/README.assets/DAISCH_IM1R_Config_MainWindow.png)
 
-6. If the serial port connection fails, you will see the information in the image below. Please check if the device is correctly connected and reconfigure the serial port permissions.
+7. If the serial port connection fails, you will see the information in the image below. Please check if the device is correctly connected and reconfigure the serial port permissions.
 
    ![DAISCH_IM1R_Config_ConnectFail](documentation/README.assets/DAISCH_IM1R_Config_ConnectFail.png)
 

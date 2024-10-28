@@ -50,84 +50,112 @@
 
 ### 系统要求
 
-- Ubuntu 18.04
-- ROS Melodic
+- Ubuntu 18.04 / ROS Melodic
+- Ubuntu 20.04 / ROS Noetic
 
 ### 安装步骤
 
 1. 安装 ROS：
    请参考 [ROS 安装指南](http://wiki.ros.org/ROS/Installation) 获取详细说明。
 
-2. 创建 catkin 工作空间：
+2. 安装依赖项：
 
-   ``` shell
-   mkdir -p ~/catkin_ws/src
+   运行以下命令安装依赖项：
+   - 对于Ubuntu 18.04 / Python 2
+
+   ```shell
+   sudo apt update
+   sudo apt install python-pip
+   pip install pyserial
    ```
 
-3. 克隆项目仓库到 src 目录：
+   - 对于Ubuntu 20.04 / Python 3
 
-   ``` shell
+   ```shell
+   sudo apt update
+   sudo apt install python3-pip
+   pip3 install pyserial
+   ```
+
+4. 创建 catkin 工作空间：
+
+   ```shell
+   mkdir -p ~/catkin_ws/src
+   ```
+   
+5. 克隆项目仓库到 src 目录：
+
+   ```shell
    cd ~/catkin_ws/src
    git clone https://github.com/DAISCHSensor/IM1R_ROS_Driver.git
    ```
 
-4. 构建工作空间：
+	- 对于Ubuntu 20.04 / Python 3, 需要切换到适配的分支
 
-   ``` shell
+       ```shell
+       cd IM1R_ROS_Driver
+       git checkout ubuntu20.04-support
+       ```
+   
+6. 构建工作空间：
+
+   ```shell
    cd ~/catkin_ws/
    catkin_make
    ```
 
-5. 更新 `.bashrc` :
+7. 添加工作空间的环境变量到 `.bashrc`：
 
-   ``` shell
+   ```shell
    echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
    source ~/.bashrc
    ```
 
 ## 使用说明
 
-1. 启动 ROS 核心服务：
+1. 通过UART1数据线束连接IM1R
+
+2. 启动 ROS 核心服务：
 
    ``` shell
    roscore
    ```
 
-2. 识别 IM1R 设备的串口：
+3. 识别 IM1R 设备的串口：
 
    ``` shell
    dmesg | grep tty
    ```
 
-3. 设置串口权限：
+4. 设置串口权限：
    假设 IM1R 设备连接到 /dev/ttyUSB0：
 
    ``` shell
    sudo chmod 666 /dev/ttyUSB0
    ```
 
-4. 启动驱动节点：
+5. 启动驱动节点：
 
    ``` shell
    rosrun im1r_ros_driver daisch_im1r_node.py /dev/ttyUSB0 115200
    ```
 
-   - `/dev/ttyUSB0` is the serial port.
-   - `115200` is the baudrate.
+   - `/dev/ttyUSB0` 是当前IM1R连接的串口
+   - `115200` 是当前IM1R使用的波特率
 
-5. 列出所有话题：
+6. 列出所有话题：
 
    ``` shell
    rostopic list
    ```
 
-6. 输出指定话题的内容：
+7. 输出指定话题的内容：
 
    ``` shell
    rostopic echo imu/data
    ```
 
-7. 订阅话题的示例 (Python)：
+8. (示例程序)订阅话题：
 
    ``` shell
    rosrun im1r_ros_driver subscriber_example.py
@@ -149,10 +177,10 @@
 | -------------------------------------------- | --------- |
 | time `header.stamp`                          | ✔️        |
 | string `header.frame_id`                     | ✔️        |
-| float64 `orientation.x`                      | ✘        |
-| float64 `orientation.y`                      | ✘        |
-| float64 `orientation.z`                      | ✘        |
-| float64 `orientation.w`                      | ✘        |
+| float64 `orientation.x`                      | ✔️        |
+| float64 `orientation.y`                      | ✔️        |
+| float64 `orientation.z`                      | ✔️        |
+| float64 `orientation.w`                      | ✔️        |
 | float64[9] `orientation_covariance`          | ✘        |
 | float64 `angular_velocity.x`                 | ✔️        |
 | float64 `angular_velocity.y`                 | ✔️        |
@@ -194,38 +222,40 @@
 
 ### 启动工具
 
-1. 启动 ROS 核心服务：
+1. 通过UART2调试线束连接IM1R
+
+2. 启动 ROS 核心服务：
 
    ``` shell
    roscore
    ```
 
-2. 识别 IM1R 设备的串口：
+3. 识别 IM1R 设备的串口：
 
    ``` shell
    dmesg | grep tty
    ```
 
-3. 设置串口权限：
+4. 设置串口权限：
    假设 IM1R 设备连接到 /dev/ttyUSB0：
 
    ``` shell
    sudo chmod 666 /dev/ttyUSB0
    ```
 
-4. 启动配置工具：
+5. 启动配置工具：
 
    ``` shell
    rosrun im1r_ros_driver daisch_im1r_config.py /dev/ttyUSB0
    ```
 
-   - 确保连接到IM1R的串口2，该串口的波特率固定为115200。
+   - `/dev/ttyUSB0` 是当前IM1R连接的串口
 
-5. 启动成功后，主界面会显示以下内容：
+6. 启动成功后，主界面会显示以下内容：
 
    ![DAISCH_IM1R_Config_MainWindow](documentation/README.assets/DAISCH_IM1R_Config_MainWindow.png)
 
-6. 如果串口连接失败，你会看到下图中的信息，请检查设备是否连接正确，并重新设置串口权限。
+7. 如果串口连接失败，你会看到下图中的信息，请检查设备是否连接正确，并重新设置串口权限。
 
    ![DAISCH_IM1R_Config_ConnectFail](documentation/README.assets/DAISCH_IM1R_Config_ConnectFail.png)
 
