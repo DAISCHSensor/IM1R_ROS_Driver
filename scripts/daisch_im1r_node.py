@@ -10,7 +10,7 @@ import math
 
 # Constants
 TEMP_DBL = -1.0
-USED_FRAME_LEN = 64
+USED_FRAME_LEN = 68
 FRAME_ID = "IM1R"
 DEFAULT_PORT = '/dev/ttyUSB0'
 DEFAULT_BAUDRATE = 115200
@@ -67,7 +67,7 @@ def publish_imu_data(pub, stamp, data):
     msg.angular_velocity.x = data['GyroX'] * (math.pi / 180)
     msg.angular_velocity.y = data['GyroY'] * (math.pi / 180)
     msg.angular_velocity.z = data['GyroZ'] * (math.pi / 180)
-    quaternion = euler_to_quaternion(data['Roll'], data['Pitch'])
+    quaternion = euler_to_quaternion(data['Roll'], data['Pitch'], data['Yaw'])
     msg.orientation.w = quaternion[0]
     msg.orientation.x = quaternion[1]
     msg.orientation.y = quaternion[2]
