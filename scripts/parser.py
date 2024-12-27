@@ -1,6 +1,5 @@
 import struct
-import csv
-import os
+import math
 
 
 # Define constants
@@ -12,7 +11,7 @@ CMD_LEN = 1
 LEN_LEN = 1
 CRC_LEN = 1
 TAIL_LEN = 2
-USED_FRAME_LEN = 62
+USED_FRAME_LEN = 68
 MIN_FRAME_LEN = 8
 
 
@@ -65,17 +64,32 @@ def parse_frame(frame):
                 'GyroZ': struct.unpack('<f', data[29:33])[0],  # Corrected slice for 4 bytes
                 'Pitch': struct.unpack('<f', data[33:37])[0],  # Corrected slice for 4 bytes
                 'Roll': struct.unpack('<f', data[37:41])[0],  # Corrected slice for 4 bytes
-                'Temperature': struct.unpack('<h', data[41:43])[0] * 0.1,  # Corrected slice for 2 bytes
-                'IMUStatus': struct.unpack('B', data[43:44])[0],
-                'GyroBiasX': struct.unpack('<h', data[44:46])[0] * 0.0001,  # Corrected slice for 2 bytes
-                'GyroBiasY': struct.unpack('<h', data[46:48])[0] * 0.0001,  # Corrected slice for 2 bytes
-                'GyroBiasZ': struct.unpack('<h', data[48:50])[0] * 0.0001,  # Corrected slice for 2 bytes
-                'GyroStaticBiasX': struct.unpack('<h', data[50:52])[0] * 0.0001,  # Corrected slice for 2 bytes
-                'GyroStaticBiasY': struct.unpack('<h', data[52:54])[0] * 0.0001,  # Corrected slice for 2 bytes
-                'GyroStaticBiasZ': struct.unpack('<h', data[54:56])[0] * 0.0001  # Corrected slice for 2 bytes
+                'Yaw': struct.unpack('<f', data[41:45])[0],
+                'Temperature': struct.unpack('<h', data[45:47])[0] * 0.1,  # Corrected slice for 2 bytes
+                'IMUStatus': struct.unpack('B', data[47:48])[0],
+                'GyroBiasX': struct.unpack('<h', data[48:50])[0] * 0.0001,  # Corrected slice for 2 bytes
+                'GyroBiasY': struct.unpack('<h', data[50:52])[0] * 0.0001,  # Corrected slice for 2 bytes
+                'GyroBiasZ': struct.unpack('<h', data[52:54])[0] * 0.0001,  # Corrected slice for 2 bytes
+                'GyroStaticBiasX': struct.unpack('<h', data[54:56])[0] * 0.0001,  # Corrected slice for 2 bytes
+                'GyroStaticBiasY': struct.unpack('<h', data[56:58])[0] * 0.0001,  # Corrected slice for 2 bytes
+                'GyroStaticBiasZ': struct.unpack('<h', data[58:60])[0] * 0.0001  # Corrected slice for 2 bytes
             }
             return parsed_data
         else:
             return None
     else:
         return None
+
+def euler_to_quaternion(roll, pitch, yaw):
+    # Convert degrees to radians
+    roll = math.radians(roll)
+    pitch = math.radians(pitch)
+    yaw = math.radians(yaw)
+    
+    # Compute the quaternion components
+    qw = math.cos(roll / 2) * math.cos(pitch / 2) * math.cos(yaw / 2) + math.sin(roll / 2) * math.sin(pitch / 2) * math.sin(yaw / 2)
+    qx = math.sin(roll / 2) * math.cos(pitch / 2) * math.cos(yaw / 2) - math.cos(roll / 2) * math.sin(pitch / 2) * math.sin(yaw / 2)
+    qy = math.cos(roll / 2) * math.sin(pitch / 2) * math.cos(yaw / 2) + math.sin(roll / 2) * math.cos(pitch / 2) * math.sin(yaw / 2)
+    qz = math.cos(roll / 2) * math.cos(pitch / 2) * math.sin(yaw / 2) - math.sin(roll / 2) * math.sin(pitch / 2) * math.cos(yaw / 2)
+    
+    return (qw, qx, qy, qz)
