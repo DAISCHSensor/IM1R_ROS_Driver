@@ -208,6 +208,7 @@ The project aims to develop and maintain ROS drivers suitable for IM1R products.
 | `timestamp`                | uint64     | Timestamp of the measurement              | microseconds (µs) | UNIX time                                           |
 | `pitch`                    | float64    | Pitch angle                               | degrees (°)       |                                                     |
 | `roll`                     | float64    | Roll angle                                | degrees (°)       |                                                     |
+| `yaw` | float64 | Yaw angle | degrees (°) | |
 | `imu_status`               | uint8      | IMU status indicator                      | -                 | Bit 0: Acceleration valid (0) / invalid (1)<br>Bit 2: Angular velocity valid (0) / invalid (1)<br>Higher bits are not defined   |
 | `gyro_bias_x`              | float64    | Gyroscope bias along the X axis           | radians/second (rad/s) |                                                 |
 | `gyro_bias_y`              | float64    | Gyroscope bias along the Y axis           | radians/second (rad/s) |                                                 |

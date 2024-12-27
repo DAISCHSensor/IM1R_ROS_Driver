@@ -91,6 +91,7 @@ def publish_extra_data(pub, data):
     msg.timestamp = data['Timestamp']
     msg.pitch = data['Pitch']
     msg.roll = data['Roll']
+    msg.yaw = data['Yaw']
     msg.imu_status = data['IMUStatus']
     msg.gyro_bias_x = data['GyroBiasX']
     msg.gyro_bias_y = data['GyroBiasY']
