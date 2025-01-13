@@ -43,7 +43,7 @@
 
 ## Project Description
 
-The project aims to develop and maintain ROS drivers suitable for IM1R products.
+The project aims to develop and maintain ROS drivers suitable for [IM1R-FB-U](https://daischsensor.com/product/imu-sensor-im1r-inertial-measurement-unit/), a compact 6-axis inertial measurement module designed by [DAISCH](https://daischsensor.com/).
 
 ## Getting Started
 

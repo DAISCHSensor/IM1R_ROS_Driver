@@ -44,7 +44,7 @@
 
 ## 项目描述
 
-本项目旨在开发和维护适用于 IM1R 产品的 ROS 驱动程序。
+本项目旨在开发和维护适用于 [IM1R-FB-U](https://www.daisch.com/WebShop/ProInfo.aspx?id=1014) 的 ROS 驱动程序。[IM1R-FB-U](https://www.daisch.com/WebShop/ProInfo.aspx?id=1014) 是一款由 [DAISCH](https://www.daisch.com) 设计的紧凑型 6 轴惯性测量模块。
 
 ## 入门指南
 
