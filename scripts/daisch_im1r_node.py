@@ -1,16 +1,23 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import rospy
 import sys
 import serial
-from parser import parse_frame, euler_to_quaternion
 from im1r_ros_driver.msg import IM1R_EXTRA
 from sensor_msgs.msg import Imu, Temperature
 import math
 
+if sys.version_info[0] < 3:
+    print("Running with Python 2")
+    from parser_python2 import parse_frame, euler_to_quaternion
+else:
+    print("Running with Python 3")
+    from parser_python3 import parse_frame, euler_to_quaternion
+
+
 # Constants
 TEMP_DBL = -1.0
-USED_FRAME_LEN = 68
+USED_FRAME_LEN = 84
 FRAME_ID = "IM1R"
 DEFAULT_PORT = '/dev/ttyUSB0'
 DEFAULT_BAUDRATE = 115200
@@ -67,11 +74,10 @@ def publish_imu_data(pub, stamp, data):
     msg.angular_velocity.x = data['GyroX'] * (math.pi / 180)
     msg.angular_velocity.y = data['GyroY'] * (math.pi / 180)
     msg.angular_velocity.z = data['GyroZ'] * (math.pi / 180)
-    quaternion = euler_to_quaternion(data['Roll'], data['Pitch'], data['Yaw'])
-    msg.orientation.w = quaternion[0]
-    msg.orientation.x = quaternion[1]
-    msg.orientation.y = quaternion[2]
-    msg.orientation.z = quaternion[3]
+    msg.orientation.w = data['Quat0']
+    msg.orientation.x = data['Quat1']
+    msg.orientation.y = data['Quat2']
+    msg.orientation.z = data['Quat3']
     # msg.orientation_covariance[0] = msg.orientation_covariance[4] = msg.orientation_covariance[8] = TEMP_DBL
     pub.publish(msg)
     # rospy.loginfo(msg._type)
