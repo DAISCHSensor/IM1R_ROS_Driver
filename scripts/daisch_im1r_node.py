@@ -12,7 +12,7 @@ if sys.version_info[0] < 3:
     from parser_python2 import parse_frame, euler_to_quaternion
 else:
     print("Running with Python 3")
-    from parser_python3 import parse_frame, euler_to_quaternion
+    from parser_python3 import parse_frame, convert_quaternion, convert_vector
 
 
 # Constants
@@ -68,19 +68,33 @@ def publish_imu_data(pub, stamp, data):
     msg = Imu()
     msg.header.stamp = stamp
     msg.header.frame_id = FRAME_ID
-    msg.linear_acceleration.x = data['AccX']
-    msg.linear_acceleration.y = data['AccY']
-    msg.linear_acceleration.z = data['AccZ']
-    msg.angular_velocity.x = data['GyroX'] * (math.pi / 180)
-    msg.angular_velocity.y = data['GyroY'] * (math.pi / 180)
-    msg.angular_velocity.z = data['GyroZ'] * (math.pi / 180)
-    msg.orientation.w = data['Quat0']
-    msg.orientation.x = data['Quat1']
-    msg.orientation.y = data['Quat2']
-    msg.orientation.z = data['Quat3']
-    # msg.orientation_covariance[0] = msg.orientation_covariance[4] = msg.orientation_covariance[8] = TEMP_DBL
+
+    ax, ay, az = convert_vector(data['AccX'], data['AccY'], data['AccZ'])
+    msg.linear_acceleration.x = ax
+    msg.linear_acceleration.y = ay
+    msg.linear_acceleration.z = az
+
+    gx, gy, gz = convert_vector(data['GyroX'], data['GyroY'], data['GyroZ'])
+    msg.angular_velocity.x = gx * (math.pi / 180)
+    msg.angular_velocity.y = gy * (math.pi / 180)
+    msg.angular_velocity.z = gz * (math.pi / 180)
+
+    # qx0 = data['Quat1']
+    # qy0 = data['Quat2']
+    # qz0 = data['Quat3']
+    # qw0 = data['Quat0']
+
+    # rospy.loginfo("[origin] x: %.4f, y: %.4f, z: %.4f, w: %.4f" % (qx0, qy0, qz0, qw0))
+
+    qx, qy, qz, qw = convert_quaternion(data['Quat1'], data['Quat2'], data['Quat3'], data['Quat0'])
+    msg.orientation.x = qx
+    msg.orientation.y = qy
+    msg.orientation.z = qz
+    msg.orientation.w = qw
+
+    # rospy.loginfo("[convert] x: %.4f, y: %.4f, z: %.4f, w: %.4f" % (qx, qy, qz, qw))
+    
     pub.publish(msg)
-    # rospy.loginfo(msg._type)
 
 def publish_temperature(pub, stamp, data):
     msg = Temperature()

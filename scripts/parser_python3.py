@@ -1,5 +1,6 @@
 import struct
 import math
+from scipy.spatial.transform import Rotation as R
 
 
 # Define constants
@@ -98,3 +99,12 @@ def euler_to_quaternion(roll, pitch, yaw):
     qz = math.cos(roll / 2) * math.cos(pitch / 2) * math.sin(yaw / 2) - math.sin(roll / 2) * math.sin(pitch / 2) * math.cos(yaw / 2)
     
     return (qw, qx, qy, qz)
+
+def convert_quaternion(qx, qy, qz, qw):
+    q_orig = R.from_quat([qx, qy, qz, qw])
+    transform = R.from_euler('zx', [90, 180], degrees=True)
+    q_new = transform * q_orig
+    return q_new.as_quat()
+
+def convert_vector(x, y, z):
+    return y, x, -z
