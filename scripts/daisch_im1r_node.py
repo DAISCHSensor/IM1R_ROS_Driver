@@ -10,7 +10,7 @@ import math
 
 # Constants
 TEMP_DBL = -1.0
-USED_FRAME_LEN = 68
+MIN_FRAME_LEN = 68
 FRAME_ID = "IM1R"
 DEFAULT_PORT = '/dev/ttyUSB0'
 DEFAULT_BAUDRATE = 115200
@@ -67,14 +67,21 @@ def publish_imu_data(pub, stamp, data):
     msg.angular_velocity.x = data['GyroX'] * (math.pi / 180)
     msg.angular_velocity.y = data['GyroY'] * (math.pi / 180)
     msg.angular_velocity.z = data['GyroZ'] * (math.pi / 180)
-    quaternion = euler_to_quaternion(data['Roll'], data['Pitch'], data['Yaw'])
-    msg.orientation.w = quaternion[0]
-    msg.orientation.x = quaternion[1]
-    msg.orientation.y = quaternion[2]
-    msg.orientation.z = quaternion[3]
+
+    if all(k in data and data[k] is not None for k in ['Quat0', 'Quat1', 'Quat2', 'Quat3']):
+            msg.orientation.w = data['Quat0']
+            msg.orientation.x = data['Quat1']
+            msg.orientation.y = data['Quat2']
+            msg.orientation.z = data['Quat3']
+    else:
+        quaternion = euler_to_quaternion(data['Roll'], data['Pitch'], data['Yaw'])
+        msg.orientation.w = quaternion[0]
+        msg.orientation.x = quaternion[1]
+        msg.orientation.y = quaternion[2]
+        msg.orientation.z = quaternion[3]
+
     # msg.orientation_covariance[0] = msg.orientation_covariance[4] = msg.orientation_covariance[8] = TEMP_DBL
     pub.publish(msg)
-    # rospy.loginfo(msg._type)
 
 def publish_temperature(pub, stamp, data):
     msg = Temperature()
@@ -87,20 +94,24 @@ def publish_temperature(pub, stamp, data):
 
 def publish_extra_data(pub, data):
     msg = IM1R_EXTRA()
-    msg.count = data['Count']
-    msg.timestamp = data['Timestamp']
-    msg.pitch = data['Pitch']
-    msg.roll = data['Roll']
-    msg.yaw = data['Yaw']
-    msg.imu_status = data['IMUStatus']
-    msg.gyro_bias_x = data['GyroBiasX'] * (math.pi / 180)
-    msg.gyro_bias_y = data['GyroBiasY'] * (math.pi / 180)
-    msg.gyro_bias_z = data['GyroBiasZ'] * (math.pi / 180)
-    msg.gyro_static_bias_x = data['GyroStaticBiasX'] * (math.pi / 180)
-    msg.gyro_static_bias_y = data['GyroStaticBiasY'] * (math.pi / 180)
-    msg.gyro_static_bias_z = data['GyroStaticBiasZ'] * (math.pi / 180)
+    msg.count = data.get('Count', 0)
+    msg.timestamp = data.get('Timestamp', 0.0)
+    msg.pitch = data.get('Pitch', 0.0)
+    msg.roll = data.get('Roll', 0.0)
+    msg.yaw = data.get('Yaw', 0.0)
+    msg.imu_status = data.get('IMUStatus', 0)
+
+    def deg_to_rad_safe(val):
+        return (val or 0.0) * (math.pi / 180)
+
+    msg.gyro_bias_x = deg_to_rad_safe(data.get('GyroBiasX'))
+    msg.gyro_bias_y = deg_to_rad_safe(data.get('GyroBiasY'))
+    msg.gyro_bias_z = deg_to_rad_safe(data.get('GyroBiasZ'))
+    msg.gyro_static_bias_x = deg_to_rad_safe(data.get('GyroStaticBiasX'))
+    msg.gyro_static_bias_y = deg_to_rad_safe(data.get('GyroStaticBiasY'))
+    msg.gyro_static_bias_z = deg_to_rad_safe(data.get('GyroStaticBiasZ'))
+
     pub.publish(msg)
-    # rospy.loginfo(msg._type)
 
 def main():
     serial_port = initialize_serial_port()
@@ -116,7 +127,7 @@ def main():
         rospy.loginfo("SerialPort Open")
         while not rospy.is_shutdown():
             data = serial_com.get_data()
-            while len(data) < USED_FRAME_LEN:
+            while len(data) < MIN_FRAME_LEN:
                 data += serial_com.get_data()
             try:
                 parsed_data = parse_frame(data)
