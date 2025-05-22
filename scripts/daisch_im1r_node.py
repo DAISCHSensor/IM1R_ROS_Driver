@@ -10,7 +10,10 @@ import math
 
 # Constants
 TEMP_DBL = -1.0
-MIN_FRAME_LEN = 68
+LEN_A = 68
+LEN_B = 72
+MIN_FRAME_LEN = min(LEN_A, LEN_B)
+FRAME_HEAD = b'\xA5\x5A'
 FRAME_ID = "IM1R"
 DEFAULT_PORT = '/dev/ttyUSB0'
 DEFAULT_BAUDRATE = 115200
@@ -113,6 +116,31 @@ def publish_extra_data(pub, data):
 
     pub.publish(msg)
 
+
+def read_frame(serial_com):
+    data = serial_com.get_data()
+    if not data:
+        return None
+    head_pos = data.find(FRAME_HEAD)
+    if head_pos < 0:
+        return None
+    if head_pos > 0:
+        data = data[head_pos:]
+    while len(data) < MIN_FRAME_LEN:
+        data += serial_com.get_data()
+    try:
+        payload_len = data[4]
+    except IndexError:
+        return None
+    expect_len = LEN_A if payload_len == 60 else LEN_B
+    while len(data) < expect_len:
+        data += serial_com.get_data()
+    frame = data[:expect_len]
+    if not frame.endswith(b'\x0D\x0A'):
+        return None
+    return frame
+
+
 def main():
     serial_port = initialize_serial_port()
     serial_baudrate = initialize_serial_baudrate()
@@ -126,11 +154,11 @@ def main():
         serial_com.clear_buff()
         rospy.loginfo("SerialPort Open")
         while not rospy.is_shutdown():
-            data = serial_com.get_data()
-            while len(data) < MIN_FRAME_LEN:
-                data += serial_com.get_data()
+            frame = read_frame(serial_com)
+            if not frame:
+                continue
             try:
-                parsed_data = parse_frame(data)
+                parsed_data = parse_frame(frame)
                 if parsed_data:
                     stamp = rospy.Time.now()
                     publish_imu_data(pub_imu_data, stamp, parsed_data)
