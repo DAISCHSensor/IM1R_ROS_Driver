@@ -33,10 +33,6 @@
       - [temperature](#temperature)
     - [自定义话题](#自定义话题)
       - [im1r/extra](#im1rextra)
-  - [IM1R配置工具](#im1r配置工具)
-    - [启动工具](#启动工具)
-    - [更改配置项](#更改配置项)
-    - [注意事项](#注意事项)
   - [常见问题解答](#常见问题解答)
     - [问题1：找不到脚本](#问题1找不到脚本)
   - [贡献](#贡献)
@@ -87,13 +83,13 @@
 
    ```shell
    cd ~/catkin_ws/src
-   git clone https://github.com/DAISCHSensor/IM1R_ROS_Driver.git
+   git clone https://github.com/DaischSensor/im1r_ros1_driver.git
    ```
 
 	- 对于Ubuntu 20.04 / Python 3, 需要切换到适配的分支
 
        ```shell
-       cd IM1R_ROS_Driver
+       cd im1r_ros1_driver
        git checkout ubuntu20.04-support
        ```
    
@@ -136,12 +132,12 @@
 
 5. 启动驱动节点：
 
+   - 确认当前IM1R连接的串口，如`/dev/ttyUSB0`
+   - 确认当前IM1R使用的波特率，如`115200`
+
    ``` shell
    rosrun im1r_ros_driver daisch_im1r_node.py /dev/ttyUSB0 115200
    ```
-
-   - `/dev/ttyUSB0` 是当前IM1R连接的串口
-   - `115200` 是当前IM1R使用的波特率
 
 6. 列出所有话题：
 
@@ -219,69 +215,6 @@
 | `gyro_static_bias_y`       | float64    | Static gyroscope bias along the Y axis    | radians/second (rad/s) |                                                 |
 | `gyro_static_bias_z`       | float64    | Static gyroscope bias along the Z axis    | radians/second (rad/s) |                                                 |
 
-## IM1R配置工具
-
-### 启动工具
-
-1. 通过UART2调试线束连接IM1R
-
-2. 启动 ROS 核心服务：
-
-   ``` shell
-   roscore
-   ```
-
-3. 识别 IM1R 设备的串口：
-
-   ``` shell
-   dmesg | grep tty
-   ```
-
-4. 设置串口权限：
-   假设 IM1R 设备连接到 /dev/ttyUSB0：
-
-   ``` shell
-   sudo chmod 666 /dev/ttyUSB0
-   ```
-
-5. 启动配置工具：
-
-   ``` shell
-   rosrun im1r_ros_driver daisch_im1r_config.py /dev/ttyUSB0
-   ```
-
-   - `/dev/ttyUSB0` 是当前IM1R连接的串口
-
-6. 启动成功后，主界面会显示以下内容：
-
-   ![DAISCH_IM1R_Config_MainWindow](documentation/README.assets/DAISCH_IM1R_Config_MainWindow.png)
-
-7. 如果串口连接失败，你会看到下图中的信息，请检查设备是否连接正确，并重新设置串口权限。
-
-   ![DAISCH_IM1R_Config_ConnectFail](documentation/README.assets/DAISCH_IM1R_Config_ConnectFail.png)
-
-### 更改配置项
-
-以下是以更改输出频率为例的步骤：
-
-1. 在主界面输入 `2` 并按回车，进入子菜单：
-
-   ![DAISCH_IM1R_Config_Frequency](documentation/README.assets/DAISCH_IM1R_Config_Frequency.png)
-
-2. 在子菜单中选择所需的输出频率。配置成功后，工具会自动返回主菜单。例如，设置为 50Hz 输出频率后，你可以在主菜单中看到设置已成功更改：
-
-   ![DAISCH_IM1R_Config_Result](documentation/README.assets/DAISCH_IM1R_Config_Result.png)
-
-### 注意事项
-
-- 输出频率应与波特率匹配，设置不匹配的波特率和输出频率会导致接收到错误的报文。
-
-  | 波特率 | 最大输出频率 |
-  | :----: | :----------: |
-  | 115200 |    100Hz     |
-  | 230400 |    250Hz     |
-  | 460800 |    500Hz     |
-  | 921600 |    1000Hz    |
 
 ## 常见问题解答  
 
