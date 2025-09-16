@@ -14,7 +14,7 @@ LEN_A = 68
 LEN_B = 96
 MIN_FRAME_LEN = min(LEN_A, LEN_B)
 FRAME_HEAD = b'\xA5\x5A'
-FRAME_ID = "imu_link"
+FRAME_ID = "ds_imu_link"
 DEFAULT_PORT = '/dev/ttyUSB0'
 DEFAULT_BAUDRATE = 115200
 
@@ -56,7 +56,7 @@ def initialize_serial_baudrate():
 
 def initialize_publishers():
     pub_imu_data = rospy.Publisher('imu/data', Imu, queue_size=10)
-    pub_rawimu_data = rospy.Publisher('rawimu/data', Imu, queue_size=10)
+    pub_rawimu_data = rospy.Publisher('imu/rawdata', Imu, queue_size=10)
     pub_temperature = rospy.Publisher('temperature', Temperature, queue_size=10)
     pub_im1r_extra = rospy.Publisher('im1r/extra', IM1R_EXTRA, queue_size=10)
     return pub_imu_data, pub_rawimu_data, pub_temperature, pub_im1r_extra
