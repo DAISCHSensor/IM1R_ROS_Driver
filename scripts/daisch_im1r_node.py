@@ -11,10 +11,10 @@ import math
 # Constants
 TEMP_DBL = -1.0
 LEN_A = 68
-LEN_B = 72
+LEN_B = 96
 MIN_FRAME_LEN = min(LEN_A, LEN_B)
 FRAME_HEAD = b'\xA5\x5A'
-FRAME_ID = "IM1R"
+FRAME_ID = "imu_link"
 DEFAULT_PORT = '/dev/ttyUSB0'
 DEFAULT_BAUDRATE = 115200
 
@@ -56,9 +56,10 @@ def initialize_serial_baudrate():
 
 def initialize_publishers():
     pub_imu_data = rospy.Publisher('imu/data', Imu, queue_size=10)
+    pub_rawimu_data = rospy.Publisher('rawimu/data', Imu, queue_size=10)
     pub_temperature = rospy.Publisher('temperature', Temperature, queue_size=10)
     pub_im1r_extra = rospy.Publisher('im1r/extra', IM1R_EXTRA, queue_size=10)
-    return pub_imu_data, pub_temperature, pub_im1r_extra
+    return pub_imu_data, pub_rawimu_data, pub_temperature, pub_im1r_extra
 
 def publish_imu_data(pub, stamp, data):
     msg = Imu()
@@ -146,7 +147,7 @@ def main():
     serial_baudrate = initialize_serial_baudrate()
 
     rospy.init_node('daisch_im1r_node')
-    pub_imu_data, pub_temperature, pub_im1r_extra = initialize_publishers()
+    pub_imu_data, pub_rawimu_data, pub_temperature, pub_im1r_extra = initialize_publishers()
 
     try:
         serial_com = RealTimeCOM(serial_port, serial_baudrate, timeout=1)
@@ -158,12 +159,13 @@ def main():
             if not frame:
                 continue
             try:
-                parsed_data = parse_frame(frame)
-                if parsed_data:
+                data, data_raw = parse_frame(frame)
+                if data is not None and data_raw is not None:
                     stamp = rospy.Time.now()
-                    publish_imu_data(pub_imu_data, stamp, parsed_data)
-                    publish_temperature(pub_temperature, stamp, parsed_data)
-                    publish_extra_data(pub_im1r_extra, parsed_data)
+                    publish_imu_data(pub_imu_data, stamp, data)
+                    publish_imu_data(pub_rawimu_data, stamp, data_raw)
+                    publish_temperature(pub_temperature, stamp, data)
+                    publish_extra_data(pub_im1r_extra, data)
 
             except ValueError as e:
                 rospy.logwarn(f"Value error, likely due to missing fields in the messages. Error was: {e}")     
