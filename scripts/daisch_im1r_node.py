@@ -10,11 +10,11 @@ import math
 
 # Constants
 TEMP_DBL = -1.0
-LEN_A = 68
-LEN_B = 72
+LEN_A = 47
+LEN_B = 47
 MIN_FRAME_LEN = min(LEN_A, LEN_B)
 FRAME_HEAD = b'\xA5\x5A'
-FRAME_ID = "IM1R"
+FRAME_ID = "ds_imu_link"
 DEFAULT_PORT = '/dev/ttyUSB0'
 DEFAULT_BAUDRATE = 115200
 
@@ -98,21 +98,21 @@ def publish_temperature(pub, stamp, data):
 def publish_extra_data(pub, data):
     msg = IM1R_EXTRA()
     msg.count = data.get('Count', 0)
-    msg.timestamp = data.get('Timestamp', 0.0)
+    # msg.timestamp = data.get('Timestamp', 0.0)
     msg.pitch = data.get('Pitch', 0.0)
     msg.roll = data.get('Roll', 0.0)
     msg.yaw = data.get('Yaw', 0.0)
     msg.imu_status = data.get('IMUStatus', 0)
 
-    def deg_to_rad_safe(val):
-        return (val or 0.0) * (math.pi / 180)
+    # def deg_to_rad_safe(val):
+    #     return (val or 0.0) * (math.pi / 180)
 
-    msg.gyro_bias_x = deg_to_rad_safe(data.get('GyroBiasX'))
-    msg.gyro_bias_y = deg_to_rad_safe(data.get('GyroBiasY'))
-    msg.gyro_bias_z = deg_to_rad_safe(data.get('GyroBiasZ'))
-    msg.gyro_static_bias_x = deg_to_rad_safe(data.get('GyroStaticBiasX'))
-    msg.gyro_static_bias_y = deg_to_rad_safe(data.get('GyroStaticBiasY'))
-    msg.gyro_static_bias_z = deg_to_rad_safe(data.get('GyroStaticBiasZ'))
+    # msg.gyro_bias_x = deg_to_rad_safe(data.get('GyroBiasX'))
+    # msg.gyro_bias_y = deg_to_rad_safe(data.get('GyroBiasY'))
+    # msg.gyro_bias_z = deg_to_rad_safe(data.get('GyroBiasZ'))
+    # msg.gyro_static_bias_x = deg_to_rad_safe(data.get('GyroStaticBiasX'))
+    # msg.gyro_static_bias_y = deg_to_rad_safe(data.get('GyroStaticBiasY'))
+    # msg.gyro_static_bias_z = deg_to_rad_safe(data.get('GyroStaticBiasZ'))
 
     pub.publish(msg)
 
@@ -129,10 +129,10 @@ def read_frame(serial_com):
     while len(data) < MIN_FRAME_LEN:
         data += serial_com.get_data()
     try:
-        payload_len = data[4]
+        payload_len = data[3]
     except IndexError:
         return None
-    expect_len = LEN_A if payload_len == 60 else LEN_B
+    expect_len = LEN_A
     while len(data) < expect_len:
         data += serial_com.get_data()
     frame = data[:expect_len]
